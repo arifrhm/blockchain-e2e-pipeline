@@ -1,5 +1,5 @@
 // 03-ai-autonomous-agent/config/policy.js
-// Human Mandate & Policy Guardrails (Inspired by Saifuro Mandate Architecture)
+// Human Mandate & Policy Guardrails for Agentic Web3 Commerce
 
 module.exports = {
   // Tahap 1: Kuota belanja maksimal (CFO Mandate)

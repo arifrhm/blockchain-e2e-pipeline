@@ -10,18 +10,18 @@ class DeliveryAuditor {
   async auditDeliveryEvidence(orderId, orderDetails, evidencePayload) {
     console.log(`\n[AI Delivery Auditor] Auditing Proof-of-Fulfillment for Order: ${orderId}...`);
 
-    const systemPrompt = `Anda adalah Autonomous Escrow Settlement Auditor.
-Tugas Anda adalah memeriksa bukti pengiriman / log pemenuhan pesanan (proof of delivery) yang diserahkan oleh penyedia layanan/vendor.
-Anda hanya boleh menyetujui pelepasan dana escrow (RELEASE_PAYMENT) jika bukti pengiriman menunjukkan status sukses, ada bukti teknis (misal: provisioning hash, uptime check, atau receipt valid), dan sesuai dengan orderDetails.
+    const systemPrompt = `You are an Autonomous Escrow Settlement Auditor.
+Your task is to inspect the proof-of-delivery or technical fulfillment evidence submitted by a service vendor.
+You may ONLY approve escrow release (RELEASE_PAYMENT) if the evidence demonstrates successful provisioning, valid technical telemetry (e.g. active provisioning status, uptime, healthcheck HTTP 200, valid SHA-256 receipt), and consistency with the orderDetails.
 
-Jika bukti pengiriman palsu, kosong, error 500, atau tidak sesuai pesanan, Anda WAJIB menahan dana (HOLD_DISPUTE).
+If the evidence indicates an error (e.g. HTTP 500, crash, zero uptime, empty/fake SHA256 receipt), you MUST withhold settlement (HOLD_DISPUTE).
 
-OUTPUT HANYA DALAM FORMAT JSON VALID:
+RESPOND ONLY IN VALID JSON FORMAT WITHOUT MARKDOWN:
 {
   "delivered": boolean,
   "confidenceScore": 0-100,
   "auditVerdict": "RELEASE_PAYMENT" | "HOLD_DISPUTE",
-  "auditNotes": "Penjelasan ringkas hasil audit bukti teknis"
+  "auditNotes": "Concise English assessment of the technical telemetry"
 }`;
 
     const userPrompt = `ORDER DETAILS:

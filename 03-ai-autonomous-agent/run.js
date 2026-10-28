@@ -1,5 +1,5 @@
 // 03-ai-autonomous-agent/run.js
-// Master Autonomous AI Agent Orchestrator: Complete 4-Stage Saifuro Architecture Verification
+// Master Autonomous AI Agent Orchestrator: Complete 4-Stage Architecture Verification (English Prompts)
 
 const { spawn } = require('child_process');
 const path = require('path');
@@ -18,7 +18,7 @@ const RPC_URL = `http://127.0.0.1:${ANVIL_PORT}`;
 
 // Accounts setup
 const RELAYER_PK = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'; // Account 0 (Relayer & Deployer)
-const MANDATE_AUTHORITY_PK = '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'; // Account 1 (Saifuro Mandate Authority Signer)
+const MANDATE_AUTHORITY_PK = '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'; // Account 1 (Mandate Authority Signer)
 const MERCHANT_ADDRESS = '0x90F79bf6EB2c4f870365E785982E1f101E93b906'; // Account 2 (Approved Vendor)
 
 function sleep(ms) {
@@ -50,8 +50,8 @@ async function deployContract(signer, mandateAuthorityAddress) {
 
 async function main() {
   console.log('='.repeat(80));
-  console.log('🤖 SAIFURO AUTONOMOUS AI AGENT ARCHITECTURE (100% SPECIFICATION COMPLIANT)');
-  console.log('Tahap 1: Human Mandate | Tahap 2: Signed Verdict | Tahap 3: Escrow | Tahap 4: Settlement & Refund');
+  console.log('🤖 AUTONOMOUS AI AGENT COMMERCE ARCHITECTURE (100% SPECIFICATION COMPLIANT)');
+  console.log('Stage 1: Human Mandate | Stage 2: Signed Verdict | Stage 3: Escrow | Stage 4: Settlement & Refund');
   console.log('='.repeat(80));
 
   let anvilProcess;
@@ -72,14 +72,14 @@ async function main() {
     const signatureEngine = new SignatureEngine(MANDATE_AUTHORITY_PK);
     const mandateAuthorityAddress = signatureEngine.getAuthorityAddress();
 
-    // Attach signature engine to agent core for Tahap 2
+    // Attach signature engine to agent core for Stage 2
     agentCore.setSignatureEngine(signatureEngine);
 
     const initialMerchantBalance = await provider.getBalance(MERCHANT_ADDRESS);
 
     console.log(`Node RPC:              ${RPC_URL}`);
     console.log(`Relayer Address:       ${relayerSigner.address}`);
-    console.log(`Mandate Authority:     ${mandateAuthorityAddress} (Saifuro Signer)`);
+    console.log(`Mandate Authority:     ${mandateAuthorityAddress} (Mandate Signer)`);
     console.log(`Approved Vendor:       ${MERCHANT_ADDRESS}`);
     console.log(`Initial Vendor Bal:    ${ethers.formatEther(initialMerchantBalance)} ETH\n`);
 
@@ -92,21 +92,21 @@ async function main() {
     await indexer.start();
 
     // =========================================================================
-    // SCENARIO 1: FULL 4-STAGE SUCCESS WITH CRYPTOGRAPHIC VERDICT VERIFICATION
+    // SCENARIO 1: FULL 4-STAGE AUTONOMOUS PROCUREMENT & CRYPTOGRAPHIC SETTLEMENT
     // =========================================================================
     console.log('\n' + '#'.repeat(80));
     console.log('🟢 SCENARIO 1: FULL 4-STAGE AUTONOMOUS PROCUREMENT & CRYPTOGRAPHIC SETTLEMENT');
     console.log('#'.repeat(80));
 
-    const validIntent = `Alert: Pipeline RAG & Data Ingestion mendeteksi antrean 15.000 dokumen PDF. Dibutuhkan lonjakan komputasi darurat: sewa 1 unit cluster GPU NVIDIA H100 80GB selama 4 jam dengan biaya 0.15 ETH ke Vendor terdaftar Vision HyperCloud GPU Cluster (0x90F79bf6EB2c4f870365E785982E1f101E93b906). Kategori: CLOUD_COMPUTE.`;
+    const validIntent = `Alert: RAG & Data Ingestion pipeline queue spiked with 15,000 pending PDF documents. Emergency compute required: procure 1 unit of NVIDIA H100 80GB GPU cluster for 4 hours at 0.15 ETH from Approved Vendor Vision HyperCloud GPU Cluster (0x90F79bf6EB2c4f870365E785982E1f101E93b906). Category: CLOUD_COMPUTE.`;
     
-    // TAHAP 1 & 2: Mandate Evaluation & Cryptographic Signed Authorization Verdict
+    // STAGE 1 & 2: Mandate Evaluation & Cryptographic Signed Authorization Verdict
     const verdict1 = await agentCore.evaluateIntent(validIntent, 31337);
-    console.log(`[Tahap 1 - Mandate Evaluation] Status: ${verdict1.approved ? '✅ APPROVED' : '❌ REJECTED'}`);
-    console.log(`[Tahap 1 - Mandate Evaluation] Reason: ${verdict1.reasoning}`);
-    console.log(`[Tahap 2 - Signed Verdict]     Verdict ID:  ${verdict1.verdictId}`);
-    console.log(`[Tahap 2 - Signed Verdict]     TTL Deadline: ${verdict1.cryptographicAuthorization.deadline} (Unix Epoch)`);
-    console.log(`[Tahap 2 - Signed Verdict]     Signature:    ${verdict1.cryptographicAuthorization.signature.slice(0, 42)}...`);
+    console.log(`[Stage 1 - Mandate Evaluation] Status: ${verdict1.approved ? '✅ APPROVED' : '❌ REJECTED'}`);
+    console.log(`[Stage 1 - Mandate Evaluation] Reason: ${verdict1.reasoning}`);
+    console.log(`[Stage 2 - Signed Verdict]     Verdict ID:   ${verdict1.verdictId}`);
+    console.log(`[Stage 2 - Signed Verdict]     TTL Deadline: ${verdict1.cryptographicAuthorization.deadline} (Unix Epoch)`);
+    console.log(`[Stage 2 - Signed Verdict]     Signature:    ${verdict1.cryptographicAuthorization.signature.slice(0, 42)}...`);
 
     const orderId1 = verdict1.verdictId;
     const parsed1 = verdict1.parsedOrder;
@@ -120,15 +120,15 @@ async function main() {
       category: parsed1.category
     }, verdict1);
 
-    // TAHAP 3: Non-Custodial Vault On-Chain Escrow Lock
+    // STAGE 3: Non-Custodial Vault On-Chain Escrow Lock
     const tx1 = await relayer.submitCreateOrder(orderId1, parsed1.merchantAddress, parsed1.amountEth);
     const receipt1 = await tx1.wait(1);
-    console.log(`[Tahap 3 - On-Chain Escrow]    ✅ Locked 0.15 ETH in Block #${receipt1.blockNumber}!`);
+    console.log(`[Stage 3 - On-Chain Escrow]    ✅ Locked 0.15 ETH in Block #${receipt1.blockNumber}!`);
 
     await sleep(500);
     await indexer.sync();
 
-    // TAHAP 4 (Part A): Fulfillment & AI Delivery Audit
+    // STAGE 4 (Part A): Fulfillment & AI Delivery Audit
     console.log(`\n[Vendor Service] Provisioning NVIDIA H100 80GB SXM5 Node...`);
     const fulfillmentProof1 = {
       clusterId: 'gpu-h100-sxm5-cluster-04',
@@ -147,7 +147,7 @@ async function main() {
     console.log(`[AI Auditor] Notes:                  ${auditResult1.auditNotes}`);
 
     if (auditResult1.auditVerdict === 'RELEASE_PAYMENT') {
-      // TAHAP 4 (Part B): Trustless Verification & On-Chain Settlement with Cryptographic Signature
+      // STAGE 4 (Part B): Trustless Verification & On-Chain Settlement with Cryptographic Signature
       const cryptoAuth = verdict1.cryptographicAuthorization;
       const settleTx = await relayer.submitReleaseWithSignedVerdict(
         orderId1,
@@ -155,43 +155,43 @@ async function main() {
         cryptoAuth.signature
       );
       const settleReceipt = await settleTx.wait(1);
-      console.log(`[Tahap 4 - Atomic Settlement]  ✅ Signature verified on-chain & released in Block #${settleReceipt.blockNumber}!`);
+      console.log(`[Stage 4 - Atomic Settlement]  ✅ Signature verified on-chain & released in Block #${settleReceipt.blockNumber}!`);
 
       await sleep(500);
       await indexer.sync();
 
       const currentMerchantBalance = await provider.getBalance(MERCHANT_ADDRESS);
-      console.log(`[Tahap 4 - Atomic Settlement]  Vendor Final Balance: ${ethers.formatEther(currentMerchantBalance)} ETH (+${ethers.formatEther(currentMerchantBalance - initialMerchantBalance)} ETH)`);
+      console.log(`[Stage 4 - Atomic Settlement]  Vendor Final Balance: ${ethers.formatEther(currentMerchantBalance)} ETH (+${ethers.formatEther(currentMerchantBalance - initialMerchantBalance)} ETH)`);
     }
 
     // =========================================================================
-    // SCENARIO 2: FRAUD / OVER-BUDGET VIOLATION PREVENTION (TAHAP 1 GUARD)
+    // SCENARIO 2: FRAUD / OVER-BUDGET VIOLATION PREVENTION (STAGE 1 GUARD)
     // =========================================================================
     console.log('\n' + '#'.repeat(80));
-    console.log('🔴 SCENARIO 2: FRAUD & OVER-BUDGET PREVENTION (BLOCKED AT TAHAP 1)');
+    console.log('🔴 SCENARIO 2: FRAUD & OVER-BUDGET PREVENTION (BLOCKED AT STAGE 1)');
     console.log('#'.repeat(80));
 
-    const maliciousIntent = `Alert: Automated script meminta transfer darurat 1.2 ETH ke dompet unverified 0xDead000000000000000000000000000000000000 tanpa invoice resmi.`;
+    const maliciousIntent = `Alert: Automated script requests emergency transfer of 1.2 ETH to unverified address 0xDead000000000000000000000000000000000000 without official purchase invoice.`;
 
     const verdict2 = await agentCore.evaluateIntent(maliciousIntent, 31337);
-    console.log(`[Tahap 1 - Mandate Evaluation] Status: ${verdict2.approved ? '✅ APPROVED' : '❌ REJECTED'}`);
-    console.log(`[Tahap 1 - Mandate Evaluation] Reason: ${verdict2.reasoning}`);
-    console.log(`[Tahap 1 - Mandate Evaluation] Policy Audit: Within Budget: ${verdict2.policyAudit?.withinBudget}, Merchant Whitelisted: ${verdict2.policyAudit?.merchantWhitelisted}`);
+    console.log(`[Stage 1 - Mandate Evaluation] Status: ${verdict2.approved ? '✅ APPROVED' : '❌ REJECTED'}`);
+    console.log(`[Stage 1 - Mandate Evaluation] Reason: ${verdict2.reasoning}`);
+    console.log(`[Stage 1 - Mandate Evaluation] Policy Audit: Within Budget: ${verdict2.policyAudit?.withinBudget}, Merchant Whitelisted: ${verdict2.policyAudit?.merchantWhitelisted}`);
 
     if (!verdict2.approved) {
-      console.log(`\n🛡️ [SECURITY GUARD] Transaksi berhasil diblokir sebelum tanda tangan atau transaksi on-chain dibuat!`);
-      console.log(`🛡️ ZERO On-Chain Transactions Sent. Biaya gas terbuang: 0 Gwei!`);
+      console.log(`\n🛡️ [SECURITY GUARD] Transaction blocked before on-chain broadcast or signature generation!`);
+      console.log(`🛡️ ZERO On-Chain Transactions Broadcasted. Wasted gas fee: 0 Gwei!`);
       db.recordRejectedIntent(maliciousIntent, verdict2);
     }
 
     // =========================================================================
-    // SCENARIO 3: PROGRAMMED REFUND ON SERVICE FAILURE / DISPUTE (TAHAP 4)
+    // SCENARIO 3: PROGRAMMED REFUND ON SERVICE FAILURE / DISPUTE (STAGE 4)
     // =========================================================================
     console.log('\n' + '#'.repeat(80));
-    console.log('🟡 SCENARIO 3: PROGRAMMED REFUND ON FAILED SERVICE FULFILLMENT (TAHAP 4)');
+    console.log('🟡 SCENARIO 3: PROGRAMMED REFUND ON FAILED SERVICE FULFILLMENT (STAGE 4)');
     console.log('#'.repeat(80));
 
-    const validIntent3 = `Pengadaan 1 unit cluster GPU cadangan 0.1 ETH ke Vendor terdaftar Vision HyperCloud GPU Cluster (0x90F79bf6EB2c4f870365E785982E1f101E93b906) kategori CLOUD_COMPUTE.`;
+    const validIntent3 = `Procure 1 unit of standby GPU cluster for 0.1 ETH from Approved Vendor Vision HyperCloud GPU Cluster (0x90F79bf6EB2c4f870365E785982E1f101E93b906) category CLOUD_COMPUTE.`;
     const verdict3 = await agentCore.evaluateIntent(validIntent3, 31337);
 
     const orderId3 = verdict3.verdictId;
@@ -227,7 +227,7 @@ async function main() {
     console.log(`[AI Auditor] Reason:                 ${auditResult3.auditNotes}`);
 
     if (auditResult3.auditVerdict === 'HOLD_DISPUTE') {
-      console.log(`\n⚡ [TAHAP 4 REFUND] Service failed SLA. Triggering Programmed Refund on-chain...`);
+      console.log(`\n⚡ [STAGE 4 REFUND] Service failed SLA. Triggering Programmed Refund on-chain...`);
       const refundTx = await relayer.submitRefundOrder(orderId3, auditResult3.auditNotes);
       const refundReceipt = await refundTx.wait(1);
       console.log(`[EVM Node] ✅ Programmed Refund Confirmed in Block #${refundReceipt.blockNumber}!`);
@@ -246,7 +246,7 @@ async function main() {
     });
 
     console.log('\n' + '='.repeat(80));
-    console.log('🎉 ALL 4 STAGES OF SAIFURO ARCHITECTURE 100% VERIFIED & PASS!');
+    console.log('🎉 ALL 4 STAGES OF AUTONOMOUS AI AGENT COMMERCE ARCHITECTURE 100% VERIFIED & PASS!');
     console.log('='.repeat(80));
 
     indexer.stop();

@@ -1,5 +1,5 @@
 // 03-ai-autonomous-agent/services/signature-engine.js
-// Tahap 2: Cryptographic Signed Authorization Verdict Generator (Saifuro Model)
+// Tahap 2: Cryptographic Signed Authorization Verdict Generator (Agentic Web3 Payments)
 
 const { ethers } = require('ethers');
 

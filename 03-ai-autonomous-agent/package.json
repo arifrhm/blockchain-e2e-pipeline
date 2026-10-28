@@ -1,7 +1,7 @@
 {
   "name": "blockchain-path3-ai-autonomous-agent",
   "version": "1.0.0",
-  "description": "Path 3: Autonomous AI Agent for Blockchain Commerce (Saifuro Model) via 9Router",
+  "description": "Path 3: Autonomous AI Agent for Blockchain Commerce via 9Router",
   "main": "run.js",
   "scripts": {
     "start": "node run.js",

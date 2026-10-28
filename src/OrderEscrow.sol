@@ -2,8 +2,8 @@
 pragma solidity ^0.8.20;
 
 /**
- * @title SaifuroAgentEscrow (OrderEscrow)
- * @notice Enterprise Non-Custodial Vault & Smart Contract Escrow for Autonomous AI Agents (Saifuro Model)
+ * @title AgenticEscrowVault (OrderEscrow)
+ * @notice Enterprise Non-Custodial Vault & Smart Contract Escrow for Autonomous AI Agents
  *
  * Implements:
  * 1. Non-Custodial Vault: Funds held by smart contract logic, never by an intermediary.
@@ -28,7 +28,7 @@ contract OrderEscrow {
         OrderStatus status;
     }
 
-    address public immutable mandateAuthority; // Saifuro / CFO Mandate Signing Authority
+    address public immutable mandateAuthority; // CFO / Mandate Signing Authority
     mapping(bytes32 => Order) public orders;
 
     // Events for Indexers and Counterparty Verification
