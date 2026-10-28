@@ -25,6 +25,9 @@ class TransactionRelayer {
     return nonce;
   }
 
+  /**
+   * Tahap 3: Locks funds in non-custodial smart contract escrow
+   */
   async submitCreateOrder(orderId, merchantAddress, amountEth) {
     console.log(`\n[Relayer] Processing AI-Approved Order ${orderId} -> On-Chain Broadcast`);
     const orderBytes32 = ethers.id(orderId);
@@ -45,7 +48,7 @@ class TransactionRelayer {
       maxPriorityFeePerGas: feeData.maxPriorityFeePerGas || ethers.parseUnits('1', 'gwei')
     });
 
-    console.log(`[Relayer] Tx Broadcasted! TxHash: ${tx.hash}`);
+    console.log(`[Relayer] Escrow Locking Tx Broadcasted! TxHash: ${tx.hash}`);
 
     db.updateOrderStatus(orderId, {
       status: 'BROADCASTED',
@@ -56,20 +59,46 @@ class TransactionRelayer {
     return tx;
   }
 
-  async submitReleasePayment(orderId) {
-    console.log(`\n[Relayer] Triggering Escrow Settlement for Order: ${orderId}`);
+  /**
+   * Tahap 3 & 4: Releases escrow using cryptographic Signed Authorization Verdict
+   */
+  async submitReleaseWithSignedVerdict(orderId, deadline, signature) {
+    console.log(`\n[Relayer] Triggering Trustless Escrow Settlement with Cryptographic Verdict...`);
     const orderBytes32 = ethers.id(orderId);
     const nonce = await this.getNextNonce();
 
-    const tx = await this.contract.releasePayment(orderBytes32, {
+    const tx = await this.contract.releaseWithSignedVerdict(orderBytes32, deadline, signature, {
       nonce: nonce
     });
 
-    console.log(`[Relayer] Settlement Tx Broadcasted! TxHash: ${tx.hash}`);
+    console.log(`[Relayer] Verified Settlement Broadcasted! TxHash: ${tx.hash}`);
 
     db.updateOrderStatus(orderId, {
-      settlementTxHash: tx.hash
+      settlementTxHash: tx.hash,
+      signedVerdictUsed: true
     }, 'SETTLEMENT_BROADCASTED');
+
+    return tx;
+  }
+
+  /**
+   * Tahap 4: Programmed Refund if service delivery fails or dispute arises
+   */
+  async submitRefundOrder(orderId, reason) {
+    console.log(`\n[Relayer] Triggering Programmed Refund for Order: ${orderId}...`);
+    const orderBytes32 = ethers.id(orderId);
+    const nonce = await this.getNextNonce();
+
+    const tx = await this.contract.refundOrder(orderBytes32, reason, {
+      nonce: nonce
+    });
+
+    console.log(`[Relayer] Refund Broadcasted! TxHash: ${tx.hash}`);
+
+    db.updateOrderStatus(orderId, {
+      refundTxHash: tx.hash,
+      refundReason: reason
+    }, 'REFUND_BROADCASTED');
 
     return tx;
   }

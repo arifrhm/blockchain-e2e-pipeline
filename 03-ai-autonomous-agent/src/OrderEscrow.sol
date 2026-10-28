@@ -2,13 +2,15 @@
 pragma solidity ^0.8.20;
 
 /**
- * @title OrderEscrow
- * @notice Realistic E-Commerce / B2B Escrow contract demonstrating Web2 <-> Web3 settlement.
- * Flow:
- * 1. Web2 user checks out -> Relayer calls createOrder() with ETH payment.
- * 2. Funds locked in escrow until physical delivery confirmation.
- * 3. On delivery, releasePayment() sends funds to merchant.
- * 4. On dispute/cancellation, refundOrder() returns funds to buyer.
+ * @title SaifuroAgentEscrow (OrderEscrow)
+ * @notice Enterprise Non-Custodial Vault & Smart Contract Escrow for Autonomous AI Agents (Saifuro Model)
+ *
+ * Implements:
+ * 1. Non-Custodial Vault: Funds held by smart contract logic, never by an intermediary.
+ * 2. On-Chain Verification of Signed Authorization Verdict:
+ *    Funds CAN ONLY be released if a valid cryptographic signature from the Mandate Authority is provided.
+ * 3. TTL Expiration Enforcement: Guarantees transactions cannot be replayed after deadline.
+ * 4. Programmed Refund: Automatically returns funds to the buyer if fulfillment fails or is disputed.
  */
 contract OrderEscrow {
     enum OrderStatus {
@@ -26,10 +28,10 @@ contract OrderEscrow {
         OrderStatus status;
     }
 
-    address public immutable platformAdmin;
+    address public immutable mandateAuthority; // Saifuro / CFO Mandate Signing Authority
     mapping(bytes32 => Order) public orders;
 
-    // Events emitted for the Web2 Indexer to listen and reconcile
+    // Events for Indexers and Counterparty Verification
     event OrderCreated(
         bytes32 indexed orderId,
         address indexed buyer,
@@ -40,13 +42,15 @@ contract OrderEscrow {
     event PaymentReleased(
         bytes32 indexed orderId,
         address indexed merchant,
-        uint256 amount
+        uint256 amount,
+        address indexed verifier
     );
 
     event OrderRefunded(
         bytes32 indexed orderId,
         address indexed buyer,
-        uint256 amount
+        uint256 amount,
+        string reason
     );
 
     error OrderAlreadyExists();
@@ -55,18 +59,15 @@ contract OrderEscrow {
     error Unauthorized();
     error TransferFailed();
     error ZeroAmount();
+    error VerdictExpired();
+    error InvalidSignature();
 
-    modifier onlyAdmin() {
-        if (msg.sender != platformAdmin) revert Unauthorized();
-        _;
-    }
-
-    constructor() {
-        platformAdmin = msg.sender;
+    constructor(address _mandateAuthority) {
+        mandateAuthority = _mandateAuthority;
     }
 
     /**
-     * @notice Locks payment in escrow for a specific Web2 order ID.
+     * @notice Locks funds in non-custodial escrow for an AI-initiated order.
      */
     function createOrder(
         bytes32 _orderId,
@@ -87,39 +88,87 @@ contract OrderEscrow {
     }
 
     /**
-     * @notice Releases escrowed funds to the merchant upon delivery verification.
-     * Can be invoked by the buyer or the platformAdmin relayer.
+     * @notice Releases escrowed funds to the merchant ONLY IF verified by a Signed Authorization Verdict.
+     * Can be invoked trustlessly by ANY party (buyer, merchant, or relayer) as long as the cryptographic
+     * signature from the Mandate Authority is valid and within the TTL deadline.
+     *
+     * @param _orderId The unique identifier of the order.
+     * @param _deadline The expiration timestamp of the verdict.
+     * @param _signature The cryptographic signature produced by the Mandate Authority.
      */
-    function releasePayment(bytes32 _orderId) external {
+    function releaseWithSignedVerdict(
+        bytes32 _orderId,
+        uint256 _deadline,
+        bytes calldata _signature
+    ) external {
         Order storage order = orders[_orderId];
         if (order.status == OrderStatus.NONE) revert OrderNotFound();
         if (order.status != OrderStatus.LOCKED) revert InvalidStatus();
-        if (msg.sender != order.buyer && msg.sender != platformAdmin) revert Unauthorized();
 
+        // 1. Enforce TTL / Deadline
+        if (block.timestamp > _deadline) revert VerdictExpired();
+
+        // 2. Compute EIP-191 compliant digest
+        bytes32 messageHash = keccak256(
+            abi.encodePacked(_orderId, order.merchant, order.amount, _deadline, block.chainid)
+        );
+        bytes32 ethSignedHash = keccak256(
+            abi.encodePacked("\x19Ethereum Signed Message:\n32", messageHash)
+        );
+
+        // 3. Recover signer and verify against Mandate Authority
+        address recoveredSigner = recoverSigner(ethSignedHash, _signature);
+        if (recoveredSigner != mandateAuthority) revert InvalidSignature();
+
+        // 4. Update State (Checks-Effects-Interactions)
         order.status = OrderStatus.SETTLED;
         uint256 amount = order.amount;
 
-        emit PaymentReleased(_orderId, order.merchant, amount);
+        emit PaymentReleased(_orderId, order.merchant, amount, recoveredSigner);
 
+        // 5. Transfer to Merchant
         (bool success, ) = payable(order.merchant).call{value: amount}("");
         if (!success) revert TransferFailed();
     }
 
     /**
-     * @notice Refunds locked payment back to buyer if order is cancelled.
+     * @notice Programmed Refund: Returns locked funds to the buyer if service delivery fails or disputes arise.
      */
-    function refundOrder(bytes32 _orderId) external {
+    function refundOrder(bytes32 _orderId, string calldata _reason) external {
         Order storage order = orders[_orderId];
         if (order.status == OrderStatus.NONE) revert OrderNotFound();
         if (order.status != OrderStatus.LOCKED) revert InvalidStatus();
-        if (msg.sender != order.buyer && msg.sender != platformAdmin) revert Unauthorized();
+        if (msg.sender != order.buyer && msg.sender != mandateAuthority) revert Unauthorized();
 
         order.status = OrderStatus.REFUNDED;
         uint256 amount = order.amount;
 
-        emit OrderRefunded(_orderId, order.buyer, amount);
+        emit OrderRefunded(_orderId, order.buyer, amount, _reason);
 
         (bool success, ) = payable(order.buyer).call{value: amount}("");
         if (!success) revert TransferFailed();
+    }
+
+    /**
+     * @dev Internal helper for ECDSA signature recovery
+     */
+    function recoverSigner(bytes32 _ethSignedHash, bytes memory _sig) internal pure returns (address) {
+        if (_sig.length != 65) revert InvalidSignature();
+
+        bytes32 r;
+        bytes32 s;
+        uint8 v;
+
+        assembly {
+            r := mload(add(_sig, 32))
+            s := mload(add(_sig, 64))
+            v := byte(0, mload(add(_sig, 96)))
+        }
+
+        if (v < 27) {
+            v += 27;
+        }
+
+        return ecrecover(_ethSignedHash, v, r, s);
     }
 }

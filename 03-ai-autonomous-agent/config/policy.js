@@ -2,13 +2,16 @@
 // Human Mandate & Policy Guardrails (Inspired by Saifuro Mandate Architecture)
 
 module.exports = {
-  // CFO Mandate: Maximum allowed ETH per single procurement
+  // Tahap 1: Kuota belanja maksimal (CFO Mandate)
   MAX_TRANSACTION_ETH: 0.3,
 
-  // CFO Mandate: Daily budget cap
+  // Tahap 1: Batas anggaran harian
   MAX_DAILY_BUDGET_ETH: 0.5,
 
-  // Whitelist of approved enterprise merchants / vendors
+  // Tahap 1: Batas waktu kedaluwarsa transaksi (Time-to-Live / TTL)
+  TRANSACTION_TTL_SECONDS: 600, // 10 menit
+
+  // Tahap 1: Whitelist kontrak atau penyedia API yang diizinkan
   APPROVED_VENDORS: [
     {
       address: '0x90F79bf6EB2c4f870365E785982E1f101E93b906',
@@ -24,7 +27,7 @@ module.exports = {
     }
   ],
 
-  // Allowed expenditure categories
+  // Kategori pengeluaran yang diizinkan
   ALLOWED_CATEGORIES: [
     'CLOUD_COMPUTE',
     'API_SERVICES',

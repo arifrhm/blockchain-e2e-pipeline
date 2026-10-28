@@ -56,6 +56,13 @@ class BlockchainIndexer {
       await this.handlePaymentReleased(log);
     }
 
+    const refundedFilter = this.contract.filters.OrderRefunded();
+    const refundedLogs = await this.contract.queryFilter(refundedFilter, fromBlock, toBlock);
+
+    for (const log of refundedLogs) {
+      await this.handleOrderRefunded(log);
+    }
+
     this.lastIndexedBlock = toBlock;
   }
 
@@ -90,8 +97,9 @@ class BlockchainIndexer {
     const orderBytes32 = parsed.args.orderId;
     const merchant = parsed.args.merchant;
     const amount = parsed.args.amount;
+    const verifier = parsed.args.verifier;
 
-    console.log(`[Indexer] ⚡ Event Caught: PaymentReleased | Merchant: ${merchant.slice(0, 8)}... | Amount: ${ethers.formatEther(amount)} ETH`);
+    console.log(`[Indexer] ⚡ Event Caught: PaymentReleased | Merchant: ${merchant.slice(0, 8)}... | Verifier: ${verifier.slice(0, 8)}... | Amount: ${ethers.formatEther(amount)} ETH`);
 
     const allOrders = db.getAllOrders();
     const matchedOrder = allOrders.find(o => ethers.id(o.orderId) === orderBytes32);
@@ -101,8 +109,32 @@ class BlockchainIndexer {
       db.updateOrderStatus(matchedOrder.orderId, {
         status: 'SETTLED',
         settledBlockNumber: log.blockNumber,
+        onchainVerifier: verifier,
         settledAt: new Date().toISOString()
       }, 'EVENT_RECONCILED_SETTLED');
+    }
+  }
+
+  async handleOrderRefunded(log) {
+    const parsed = this.contract.interface.parseLog(log);
+    const orderBytes32 = parsed.args.orderId;
+    const buyer = parsed.args.buyer;
+    const amount = parsed.args.amount;
+    const reason = parsed.args.reason;
+
+    console.log(`[Indexer] ⚡ Event Caught: OrderRefunded | Buyer: ${buyer.slice(0, 8)}... | Amount: ${ethers.formatEther(amount)} ETH | Reason: "${reason}"`);
+
+    const allOrders = db.getAllOrders();
+    const matchedOrder = allOrders.find(o => ethers.id(o.orderId) === orderBytes32);
+
+    if (matchedOrder) {
+      console.log(`[Indexer] 🔗 Reconciled Programmed Refund to Web2 Order: ${matchedOrder.orderId}`);
+      db.updateOrderStatus(matchedOrder.orderId, {
+        status: 'REFUNDED',
+        refundedBlockNumber: log.blockNumber,
+        refundReason: reason,
+        refundedAt: new Date().toISOString()
+      }, 'EVENT_RECONCILED_REFUNDED');
     }
   }
 }
