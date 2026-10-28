@@ -1,0 +1,13 @@
+{
+  "name": "blockchain-path1-local-node",
+  "version": "1.0.0",
+  "description": "Path 1: Local Dedicated Anvil EVM Node on VPS with Relayer and Indexer",
+  "main": "run.js",
+  "scripts": {
+    "start": "node run.js",
+    "test": "node run.js"
+  },
+  "dependencies": {
+    "ethers": "^6.17.0"
+  }
+}

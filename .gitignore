@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Foundry Build Artifacts & Cache
+cache/
+out/
+broadcast/
+
+# Environment & Private Keys (STRICT SECURITY)
+.env
+.env.*
+!.env.example
+!.env.testnet.example
+
+# Local SQLite & Transaction Database Logs
+data/
+*.sqlite
+*.sqlite-*
+*.log
+
+# OS & Editor
+.DS_Store
+.vscode/
+.idea/

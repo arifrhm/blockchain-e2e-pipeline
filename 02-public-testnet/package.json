@@ -1,0 +1,15 @@
+{
+  "name": "blockchain-path2-public-testnet",
+  "version": "1.0.0",
+  "description": "Path 2: Public Testnet (Base Sepolia L2 & Ethereum Sepolia L1) with Wallet Generator & Explorer Links",
+  "main": "run.js",
+  "scripts": {
+    "wallet:generate": "node scripts/generate-wallet.js",
+    "test:base": "node run.js --network=base-sepolia",
+    "test:sepolia": "node run.js --network=ethereum-sepolia",
+    "start": "node run.js --network=base-sepolia"
+  },
+  "dependencies": {
+    "ethers": "^6.17.0"
+  }
+}
